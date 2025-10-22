@@ -17,6 +17,8 @@ const useCalculator = () => {
   const [operator, setOperator] = useState(null);
   const [displayExpression, setDisplayExpression] = useState("");
   const [waitingForOperand, setWaitingForOperand] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [memory, setMemory] = useState([]);
 
   // Handler for number inputs (0-9)
   const handleNumber = (num) => {
@@ -50,6 +52,11 @@ const useCalculator = () => {
     } else if (operator) {
       // If there's already an operator, compute intermediate result
       const result = calculate(previousValue, inputValue, operator);
+
+      // Add the completed calculation to history
+      const expression = `${previousValue} ${operator} ${inputValue} =`;
+      addToHistory(expression, result);
+
       setPreviousValue(result);
       setCurrentInput(String(result));
       // Important: update expression to show the computed result followed by the new operator
@@ -65,11 +72,19 @@ const useCalculator = () => {
 
   // Handler for equals (=)
   const handleEqual = () => {
-    if (previousValue === null || operator === null) return;
+    if (previousValue === null || operator === null) {
+      // If there's no operation pending, just add the current number to history
+      const currentValue = parseFloat(currentInput);
+      const expression = `${formatNumber(currentInput)} =`;
+      addToHistory(expression, currentValue);
+      return;
+    }
 
     const inputValue = parseFloat(currentInput);
     const result = calculate(previousValue, inputValue, operator);
     const expression = `${previousValue} ${operator} ${inputValue} =`;
+
+    addToHistory(expression, result);
 
     setCurrentInput(String(result));
     setPreviousValue(null);
@@ -102,14 +117,28 @@ const useCalculator = () => {
     }
   };
 
+  // Function to add to history (add new items to the top as a stack)
+  const addToHistory = (expression, result) => {
+    setHistory((prev) => [
+      {
+        calculation: expression,
+        result: formatNumber(String(result)),
+      },
+      ...prev,
+    ]);
+  };
+
   // Handler for square root (√)
   const handleSquareRoot = () => {
+    const formatted = formatNumber(currentInput);
     const result = calculateSquareRoot(currentInput);
+    const expression = `√(${formatted})`;
+
     setCurrentInput(String(result));
-    // update the top expression to show the sqrt operation
-    const formatted = formatNumber(String(currentInput));
-    setDisplayExpression(`√(${formatted})`);
+    setDisplayExpression(expression);
     setWaitingForOperand(true);
+
+    addToHistory(expression, result);
   };
 
   // Handler for percentage (%)
@@ -125,22 +154,28 @@ const useCalculator = () => {
 
   // Handler for square (x²)
   const handleSquare = () => {
+    const formatted = formatNumber(currentInput);
     const result = calculateSquare(currentInput);
+    const expression = `(${formatted})²`;
+
     setCurrentInput(String(result));
-    // update the top expression to show the square operation
-    const formatted = formatNumber(String(currentInput));
-    setDisplayExpression(`(${formatted})²`);
+    setDisplayExpression(expression);
     setWaitingForOperand(true);
+
+    addToHistory(expression, result);
   };
 
   // Handler for reciprocal (1/x)
   const handleReciprocal = () => {
+    const formatted = formatNumber(currentInput);
     const result = calculateReciprocal(currentInput);
+    const expression = `1/(${formatted})`;
+
     setCurrentInput(String(result));
-    // update the top expression to show the reciprocal operation
-    const formatted = formatNumber(String(currentInput));
-    setDisplayExpression(`1/(${formatted})`);
+    setDisplayExpression(expression);
     setWaitingForOperand(true);
+
+    addToHistory(expression, result);
   };
 
   // Keyboard support
@@ -193,6 +228,54 @@ const useCalculator = () => {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [currentInput, previousValue, operator, waitingForOperand]);
 
+  // Memory Functions
+  const handleMC = () => {
+    setMemory([]); // Clear all memory
+  };
+
+  // Handler to clear history
+  const handleClearHistory = () => {
+    setHistory([]);
+  };
+
+  const handleMR = () => {
+    if (memory.length > 0) {
+      setCurrentInput(memory[0].toString()); // Recall last memory value
+      setWaitingForOperand(true);
+    }
+  };
+
+  const handleMAdd = () => {
+    const currentValue = parseFloat(currentInput);
+    if (memory.length === 0) {
+      setMemory([currentValue]);
+    } else {
+      const newValue = memory[0] + currentValue;
+      // Update the top value and keep the stack order
+      setMemory([newValue, ...memory.slice(1)]);
+    }
+    setWaitingForOperand(true);
+  };
+
+  const handleMSubtract = () => {
+    const currentValue = parseFloat(currentInput);
+    if (memory.length === 0) {
+      setMemory([-currentValue]);
+    } else {
+      const newValue = memory[0] - currentValue;
+      // Update the top value and keep the stack order
+      setMemory([newValue, ...memory.slice(1)]);
+    }
+    setWaitingForOperand(true);
+  };
+
+  const handleMS = () => {
+    const currentValue = parseFloat(currentInput);
+    // Already using stack behavior (adding to the top)
+    setMemory((prev) => [currentValue, ...prev]);
+    setWaitingForOperand(true);
+  };
+
   return {
     currentInput,
     displayExpression,
@@ -208,6 +291,14 @@ const useCalculator = () => {
     handleNegate,
     handleSquare,
     handleReciprocal,
+    history,
+    memory,
+    handleMC,
+    handleMR,
+    handleMAdd,
+    handleMSubtract,
+    handleMS,
+    handleClearHistory,
   };
 };
 

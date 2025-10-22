@@ -1,20 +1,123 @@
+body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: #f0f0f0;
+}
+
+.app-wrapper {
+  display: grid;
+  grid-template-columns: minmax(320px, 450px) 250px 250px;
+  gap: 50px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  align-items: start;
+}
+
+.calculator-side {
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.side-panel {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  height: fit-content;
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 12px;
+}
+
+.side-panel-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.side-panel-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #0067c0;
+  font-size: 14px;
+  padding: 0;
+}
+
+.side-panel-button:hover {
+  text-decoration: underline;
+}
+
+.side-panel-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #1f1f1f;
+}
+
+.history-list, .memory-list {
+  overflow-y: auto;
+  flex-grow: 1;
+  max-height: 500px;
+  padding-right: 4px;
+  scrollbar-width: thin;
+}
+
+.history-list::-webkit-scrollbar, .memory-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.history-list::-webkit-scrollbar-thumb, .memory-list::-webkit-scrollbar-thumb {
+  background-color: #cfcfcf;
+  border-radius: 3px;
+}
+
+.history-item {
+  padding: 8px 0;
+  text-align: right;
+  color: #6f6f6f;
+}
+.history-item :last-child {
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.memory-item {
+  padding: 8px 0;
+  text-align: right;
+  font-size: 16px;
+  color: #1f1f1f;
+}
+
 .calculator-container {
   width: 100%;
   max-width: 450px;
   background-color: #f9f9f9;
   border-radius: 8px;
-  padding: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   gap: 12px;
   font-family: "Segoe UI", sans-serif;
+  padding: 0;
+  overflow: hidden;
 }
 
 .calculator-header {
   display: flex;
   align-items: center;
-  padding: 8px;
+  padding: 12px;
 }
 
 .calculator-type {
@@ -27,7 +130,7 @@
   background-color: #f9f9f9;
   padding: 20px 12px;
   text-align: right;
-  min-height: 120px;
+  min-height: 90px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -72,16 +175,18 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 4px;
+  padding: 12px;
 }
 
 .btn {
   border: none;
-  padding: 12px;
+  padding: 18px 0;
   font-size: 16px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.2s;
-  aspect-ratio: 1;
+  width: 100%;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -125,29 +230,31 @@
 }
 
 /* Responsive Design */
-@media (max-width: 480px) {
+@media (max-width: 1024px) {
+  .app-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .side-panel {
+    display: none;
+  }
+
   .calculator-container {
-    max-width: 100%;
-    height: 100vh;
+    width: 450px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-wrapper {
+    padding: 0;
+  }
+
+  .calculator-container {
+    width: 100%;
+    height: 100%;
     border-radius: 0;
-    padding: 8px;
-  }
-
-  .calculator-display {
-    min-height: 150px;
-  }
-
-  .current-value {
-    font-size: 36px;
-  }
-
-  .btn {
-    padding: 16px;
-    font-size: 20px;
-  }
-
-  .memory-btn {
-    padding: 8px;
-    font-size: 14px;
   }
 }
